@@ -49,10 +49,19 @@
               <input id="eventStart" type="date" />
             </label>
             <label>
-              End date
-              <input id="eventEnd" type="date" />
-            </label>
+            End date
+            <input id="eventEnd" type="date" />
+          </label>
           </div>
+          
+          <div class="add-people-box">
+            <button id="toggleAddPeopleBtn" type="button" class="secondary">Add people</button>
+            <div id="addPeoplePanel" class="add-people-panel hidden">
+              <p class="muted">Select other people affected by this event:</p>
+              <div id="eventPeopleCheckboxes" class="friend-list"></div>
+            </div>
+          </div>
+          
           <button id="addEventBtn" class="primary">Add event</button>
           <p id="eventError" class="error"></p>
         </div>
