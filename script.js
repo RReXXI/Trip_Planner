@@ -1,13 +1,15 @@
+const SUPABASE_URL = "https://fvfcenzqjxhnlnubtfei.supabase.co";
+const SUPABASE_ANON_KEY = "SEM_VLOZ_ANON_PUBLIC_KEY";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const users = [
-  { id: 'pepa', name: 'Pepa', password: 'pepa123' },
-  { id: 'kuba', name: 'Kuba', password: 'kuba123' },
-  { id: 'matej', name: 'Matej', password: 'matej123' },
-  { id: 'me', name: 'Me', password: 'me123' }
+  { id: 'matej', name: 'Matej', email: 'matej.stepan@gmail.com' },
+  {id: 'marek', name: 'Marek', email: 'ig.saccoint@gmail.com'}
 ];
 
-const storageKey = 'friendsTripPlannerEvents';
 let currentUser = null;
-let events = loadEvents();
+let events = [];
 
 const $ = (id) => document.getElementById(id);
 
@@ -16,15 +18,6 @@ const monthNames = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-function loadEvents() {
-  try { return JSON.parse(localStorage.getItem(storageKey)) || []; }
-  catch { return []; }
-}
-
-function saveEvents() {
-  localStorage.setItem(storageKey, JSON.stringify(events));
-}
 
 function toISO(date) {
   const y = date.getFullYear();
@@ -60,6 +53,28 @@ function daysBetween(startISO, endISO) {
   return out;
 }
 
+async function loadEventsFromSupabase() {
+  const { data, error } = await supabaseClient
+    .from('events')
+    .select('*')
+    .order('start_date', { ascending: true });
+
+  if (error) {
+    console.error(error);
+    alert('Could not load events from Supabase.');
+    return;
+  }
+
+  events = data.map(e => ({
+    id: e.id,
+    userId: e.user_name,
+    userEmail: e.user_email,
+    title: e.title || 'Busy',
+    start: e.start_date,
+    end: e.end_date
+  }));
+}
+
 function setupDefaults() {
   const now = new Date();
   const june = new Date(now.getFullYear(), 5, 1);
@@ -80,14 +95,41 @@ function renderFriendCheckboxes() {
   `).join('');
 }
 
-function login() {
+async function login() {
   const id = $('userSelect').value;
   const password = $('passwordInput').value;
-  const user = users.find(u => u.id === id && u.password === password);
-  if (!user) {
+  const friend = users.find(u => u.id === id);
+
+  if (!friend) {
+    $('loginError').textContent = 'User not found.';
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: friend.email,
+    password: password
+  });
+
+  if (error) {
     $('loginError').textContent = 'Wrong login information.';
     return;
   }
+
+  currentUser = {
+    id: friend.id,
+    name: friend.name,
+    email: friend.email,
+    authId: data.user.id
+  };
+
+  $('loginView').classList.add('hidden');
+  $('plannerView').classList.remove('hidden');
+  $('loggedUser').textContent = `Logged in as ${currentUser.name}`;
+  $('loginError').textContent = '';
+
+  await loadEventsFromSupabase();
+  renderAll();
+}
   currentUser = user;
   $('loginView').classList.add('hidden');
   $('plannerView').classList.remove('hidden');
@@ -96,14 +138,18 @@ function login() {
   renderAll();
 }
 
-function logout() {
+async function logout() {
+  await supabaseClient.auth.signOut();
+
   currentUser = null;
+  events = [];
+
   $('plannerView').classList.add('hidden');
   $('loginView').classList.remove('hidden');
   $('passwordInput').value = '';
 }
 
-function addEvent() {
+async function addEvent() {
   const title = $('eventTitle').value.trim() || 'Busy';
   const start = $('eventStart').value;
   const end = $('eventEnd').value;
@@ -113,29 +159,49 @@ function addEvent() {
     $('eventError').textContent = 'Choose both start and end date.';
     return;
   }
+
   if (start > end) {
     $('eventError').textContent = 'End date must be after start date.';
     return;
   }
 
-  events.push({
-    id: crypto.randomUUID(),
-    userId: currentUser.id,
-    title,
-    start,
-    end
+  const { error } = await supabaseClient.from('events').insert({
+    user_id: currentUser.authId,
+    user_email: currentUser.email,
+    user_name: currentUser.id,
+    title: title,
+    start_date: start,
+    end_date: end
   });
-  saveEvents();
+
+  if (error) {
+    console.error(error);
+    $('eventError').textContent = 'Could not save event.';
+    return;
+  }
 
   $('eventTitle').value = '';
   $('eventStart').value = '';
   $('eventEnd').value = '';
+
+  await loadEventsFromSupabase();
   renderAll();
 }
 
-function deleteEvent(id) {
-  events = events.filter(e => e.id !== id);
-  saveEvents();
+async function deleteEvent(id) {
+  const { error } = await supabaseClient
+    .from('events')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', currentUser.authId);
+
+  if (error) {
+    console.error(error);
+    alert('Could not delete event.');
+    return;
+  }
+
+  await loadEventsFromSupabase();
   renderAll();
 }
 
