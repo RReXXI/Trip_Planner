@@ -84,12 +84,22 @@ function setupDefaults() {
 
   $('userSelect').innerHTML = users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
   renderFriendCheckboxes();
+  renderEventPeopleCheckboxes();
 }
 
 function renderFriendCheckboxes() {
   $('friendCheckboxes').innerHTML = users.map(user => `
     <label class="checkbox-line">
       <input type="checkbox" class="friendCheck" value="${user.id}" checked />
+      ${user.name}
+    </label>
+  `).join('');
+}
+
+function renderEventPeopleCheckboxes() {
+  $('eventPeopleCheckboxes').innerHTML = users.map(user => `
+    <label class="checkbox-line">
+      <input type="checkbox" class="eventPersonCheck" value="${user.id}" />
       ${user.name}
     </label>
   `).join('');
@@ -158,14 +168,27 @@ async function addEvent() {
     return;
   }
 
-  const { error } = await supabaseClient.from('events').insert({
-    user_id: currentUser.authId,
-    user_email: currentUser.email,
-    user_name: currentUser.id,
-    title: title,
-    start_date: start,
-    end_date: end
+  const selectedPeople = [...document.querySelectorAll('.eventPersonCheck:checked')]
+    .map(input => input.value);
+
+  const peopleForEvent = [...new Set([currentUser.id, ...selectedPeople])];
+
+  const rows = peopleForEvent.map(userId => {
+    const person = users.find(u => u.id === userId);
+
+    return {
+      user_id: userId === currentUser.id ? currentUser.authId : null,
+      user_email: person?.email || null,
+      user_name: userId,
+      title: title,
+      start_date: start,
+      end_date: end
+    };
   });
+
+  const { error } = await supabaseClient
+    .from('events')
+    .insert(rows);
 
   if (error) {
     console.error(error);
@@ -176,6 +199,9 @@ async function addEvent() {
   $('eventTitle').value = '';
   $('eventStart').value = '';
   $('eventEnd').value = '';
+
+  document.querySelectorAll('.eventPersonCheck').forEach(ch => ch.checked = false);
+  $('addPeoplePanel').classList.add('hidden');
 
   await loadEventsFromSupabase();
   renderAll();
@@ -332,6 +358,9 @@ $('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') log
 $('logoutBtn').addEventListener('click', logout);
 $('addEventBtn').addEventListener('click', addEvent);
 $('renderCalendarBtn').addEventListener('click', renderAll);
+$('toggleAddPeopleBtn').addEventListener('click', () => {
+  $('addPeoplePanel').classList.toggle('hidden');
+});
 $('freeTimeBtn').addEventListener('click', findFreeDates);
 $('allFriendsCheckbox').addEventListener('change', e => {
   document.querySelectorAll('.friendCheck').forEach(ch => ch.checked = e.target.checked);
