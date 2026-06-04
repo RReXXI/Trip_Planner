@@ -1,11 +1,11 @@
 const SUPABASE_URL = "https://fvfcenzqjxhnlnubtfei.supabase.co";
-const SUPABASE_ANON_KEY = "SEM_VLOZ_ANON_PUBLIC_KEY";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2ZmNlbnpxanhobmxudWJ0ZmVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1NTgxODQsImV4cCI6MjA5NjEzNDE4NH0.JcTEctLbyxmv93OUX4bpSHwjLJMZmGCmcm_dP9G1Awc";
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const users = [
   { id: 'matej', name: 'Matej', email: 'matej.stepan@gmail.com' },
-  {id: 'marek', name: 'Marek', email: 'ig.saccoint@gmail.com'}
+  {id: 'test', name: 'Test', email: 'ig.saccoint@gmail.com'}
 ];
 
 let currentUser = null;
