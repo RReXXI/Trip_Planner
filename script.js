@@ -130,13 +130,6 @@ async function login() {
   await loadEventsFromSupabase();
   renderAll();
 }
-  currentUser = user;
-  $('loginView').classList.add('hidden');
-  $('plannerView').classList.remove('hidden');
-  $('loggedUser').textContent = `Logged in as ${currentUser.name}`;
-  $('loginError').textContent = '';
-  renderAll();
-}
 
 async function logout() {
   await supabaseClient.auth.signOut();
