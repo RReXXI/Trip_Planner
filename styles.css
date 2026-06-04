@@ -301,6 +301,18 @@ button:hover { transform: translateY(-1px); }
   color: #a82020;
 }
 
+.add-people-box {
+  margin-bottom: 14px;
+}
+
+.add-people-panel {
+  margin-top: 12px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #f7f9ff;
+}
+
 @media (max-width: 960px) {
   .controls-grid,
   .form-grid {
