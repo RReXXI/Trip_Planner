@@ -5,7 +5,13 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const users = [
   { id: 'matej', name: 'Matej', email: 'matej.stepan@gmail.com' },
-  {id: 'test', name: 'Test', email: 'ig.saccoint@gmail.com'}
+  {id: 'dex', name: 'Dex', email: 'adex@example.com'},
+  {id: 'honza', name: 'Honza', email: 'Honza@example.com'},
+  {id: 'wolfis', name: 'Wolfis', email: 'Wolfis@example.com'},
+  {id: 'pepa', name: 'Pepa', email: 'Pepa@example.com'},
+  {id: 'vojtar', name: 'VojtaR', email: 'VojtaR@example.com'},
+  {id: 'martin', name: 'Martin', email: 'Martin@example.com'},
+  {id: 'matyn', name: 'MatyN', email: 'MatyN@example.com'}
 ];
 
 let currentUser = null;
