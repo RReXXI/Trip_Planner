@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Friends Trip Planner</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <section id="loginView" class="card login-card">
+      <h1>Friends Trip Planner</h1>
+      <p class="muted">Log in as one of your friends and mark days when you are unavailable.</p>
+
+      <label for="userSelect">Choose user</label>
+      <select id="userSelect"></select>
+
+      <label for="passwordInput">Password</label>
+      <input id="passwordInput" type="password" placeholder="Enter password" />
+
+      <button id="loginBtn" class="primary">Log in</button>
+      <p id="loginError" class="error"></p>
+
+      <details>
+        <summary>Demo logins</summary>
+        <p>Pepa / pepa123<br>Kuba / kuba123<br>Matej / matej123<br>Me / me123</p>
+      </details>
+    </section>
+
+    <main id="plannerView" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>Trip Planner</h1>
+          <p id="loggedUser" class="muted"></p>
+        </div>
+        <button id="logoutBtn" class="ghost">Log out</button>
+      </header>
+
+      <section class="controls-grid">
+        <div class="card">
+          <h2>Add unavailable time</h2>
+          <div class="form-grid">
+            <label>
+              Event name
+              <input id="eventTitle" type="text" placeholder="Vacation, exam week..." />
+            </label>
+            <label>
+              Start date
+              <input id="eventStart" type="date" />
+            </label>
+            <label>
+              End date
+              <input id="eventEnd" type="date" />
+            </label>
+          </div>
+          <button id="addEventBtn" class="primary">Add event</button>
+          <p id="eventError" class="error"></p>
+        </div>
+
+        <div class="card">
+          <h2>Calendar filter</h2>
+          <div class="form-grid">
+            <label>
+              From month
+              <input id="monthFrom" type="month" />
+            </label>
+            <label>
+              To month
+              <input id="monthTo" type="month" />
+            </label>
+          </div>
+          <button id="renderCalendarBtn" class="secondary">Show selected months</button>
+        </div>
+
+        <div class="card">
+          <h2>Free time</h2>
+          <label class="checkbox-line">
+            <input id="allFriendsCheckbox" type="checkbox" />
+            All friends
+          </label>
+          <div id="friendCheckboxes" class="friend-list"></div>
+          <button id="freeTimeBtn" class="primary">Find free dates</button>
+        </div>
+      </section>
+
+      <section class="card calendar-card">
+        <div class="calendar-header">
+          <h2>Calendar</h2>
+          <p class="muted">Red days mean someone has an event. Hover/tap a day to see details.</p>
+        </div>
+        <div id="calendar" class="calendar"></div>
+      </section>
+
+      <section id="resultsCard" class="card hidden">
+        <h2>Free dates for selected friends</h2>
+        <p id="resultsSummary" class="muted"></p>
+        <div id="freeResults" class="results"></div>
+      </section>
+
+      <section class="card">
+        <h2>Your events</h2>
+        <div id="myEvents" class="event-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
